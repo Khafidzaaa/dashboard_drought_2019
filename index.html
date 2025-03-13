@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Kekeringan Indramayu 2019</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <!-- Navbar -->
+    <nav class="bg-blue-600 p-4 text-white flex justify-between items-center">
+        <div class="text-lg font-bold">Dashboard Kekeringan Indramayu 2019</div>
+        <ul class="flex space-x-4">
+            <li><a href="https:/daunbonteng.github.io/dashboard/" class="hover:underline">Home</a></li>
+            <li><a href="https://khafidzaaa.github.io/Drought_Map_2019/" class="hover:underline">Fullscreen Map</a></li>
+            <li><a href="https://instagram.com/khafidzaaa_" class="hover:underline">Contact</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto mt-6 grid grid-cols-1 md:grid-cols-2 gap-6 p-4">
+        <!-- Peta Interaktif -->
+        <div class="bg-white p-4 shadow rounded">
+            <h2 class="text-lg font-semibold mb-4">Peta Interaktif</h2>
+            <iframe src="https://khafidzaaa.github.io/Drought_Map_2019/" class="w-full h-80 border rounded" allowfullscreen></iframe>
+        </div>
+
+        <!-- Grafik Kekeringan -->
+        <div class="bg-white p-4 shadow rounded">
+            <h2 class="text-lg font-semibold mb-4">Data Kekeringan per Bulan</h2>
+            <label for="monthSelect" class="block mb-2">Pilih Bulan:</label>
+            <select id="monthSelect" class="border p-2 rounded">
+                <option value="juli">Juli</option>
+                <option value="agustus">Agustus</option>
+                <option value="september">September</option>
+                <option value="oktober">Oktober</option>
+            </select>
+            <div class="mt-4">
+                <canvas id="droughtChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabel Data Kekeringan -->
+    <div class="container mx-auto mt-6 bg-white p-4 shadow rounded">
+        <h2 class="text-lg font-semibold mb-4">Data Kekeringan</h2>
+        <div class="mb-4">
+            <label for="bulan" class="block text-sm font-medium text-gray-700">Pilih Bulan:</label>
+            <select id="bulan" class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+                <option value="juli">Juli</option>
+                <option value="agustus">Agustus</option>
+                <option value="september">September</option>
+                <option value="oktober">Oktober</option>
+            </select>
+        </div>
+        <div class="overflow-y-auto h-80 border rounded">
+            <table id="dataTable" class="table-auto w-full border">
+                <thead class="bg-gray-200">
+                    <tr>
+                        <th class="px-4 py-2 border border-gray-300">Kecamatan</th>
+                        <th class="px-4 py-2 border border-gray-300">No Drought</th>
+                        <th class="px-4 py-2 border border-gray-300">Mild Drought</th>
+                        <th class="px-4 py-2 border border-gray-300">Moderate Drought</th>
+                        <th class="px-4 py-2 border border-gray-300">Severe Drought</th>
+                        <th class="px-4 py-2 border border-gray-300">Extreme Drought</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data akan diisi oleh JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Data kekeringan per bulan
+        const dataByMonth = {
+            juli: [
+                { kecamatan: "Anjatan", noDrought: 0.37, mildDrought: 4209.39, moderateDrought: 1245.67, severeDrought: 486.56, extremeDrought: 174.83 },
+                { kecamatan: "Arahan", noDrought: 0.31, mildDrought: 1707.4, moderateDrought: 133.93, severeDrought: 27.18, extremeDrought: 14.95 },
+                { kecamatan: "Balongan", noDrought: 0.15, mildDrought: 1347.12, moderateDrought: 400.62, severeDrought: 74.01, extremeDrought: 16.57 },
+                { kecamatan: "Bangodua", noDrought: 0.04, mildDrought: 3092.14, moderateDrought: 171.62, severeDrought: 21.26, extremeDrought: 4.18 },
+                { kecamatan: "Bongas", noDrought: 0.11, mildDrought: 2555.89, moderateDrought: 939.04, severeDrought: 233.21, extremeDrought: 41.91 },
+                { kecamatan: "Cantigi", noDrought: 1.46, mildDrought: 495.75, moderateDrought: 254.24, severeDrought: 154.09, extremeDrought: 150.16 },
+                { kecamatan: "Cikedung", noDrought: 0.21, mildDrought: 2708.76, moderateDrought: 551.44, severeDrought: 198.41, extremeDrought: 69.41 },
+                { kecamatan: "Gabuswetan", noDrought: 0.37, mildDrought: 2893.05, moderateDrought: 2440.9, severeDrought: 697.84, extremeDrought: 105.73 },
+                { kecamatan: "Gantar", noDrought: 2.46, mildDrought: 191.67, moderateDrought: 1683.74, severeDrought: 3804.13, extremeDrought: 1723.45 },
+                { kecamatan: "Haurgeulis", noDrought: 0.17, mildDrought: 2225.81, moderateDrought: 1690.48, severeDrought: 266.9, extremeDrought: 32.61 },
+                { kecamatan: "Indramayu", noDrought: 0.31, mildDrought: 1014.19, moderateDrought: 289.61, severeDrought: 120.13, extremeDrought: 26 },
+                { kecamatan: "Jatibarang", noDrought: 1.14, mildDrought: 2043.27, moderateDrought: 232.61, severeDrought: 19.76, extremeDrought: 6.45 },
+                { kecamatan: "Juntinyuat", noDrought: 0.03, mildDrought: 2865.05, moderateDrought: 448.29, severeDrought: 61.27, extremeDrought: 11.98 },
+                { kecamatan: "Kandanghaur", noDrought: 8.12, mildDrought: 530.99, moderateDrought: 2523.83, severeDrought: 1501.72, extremeDrought: 727.83 },
+                { kecamatan: "Karangampel", noDrought: 0.07, mildDrought: 1408.75, moderateDrought: 398.08, severeDrought: 70.46, extremeDrought: 15.69 },
+                { kecamatan: "Kedokan Bunder", noDrought: 0.04, mildDrought: 1776.05, moderateDrought: 318.04, severeDrought: 31.61, extremeDrought: 7.84 },
+                { kecamatan: "Kertasemaya", noDrought: 0.02, mildDrought: 2123.99, moderateDrought: 281.91, severeDrought: 11.76, extremeDrought: 2.4 },
+                { kecamatan: "Krangkeng", noDrought: 0.18, mildDrought: 1904.11, moderateDrought: 1485.01, severeDrought: 517.21, extremeDrought: 196.71 },
+                { kecamatan: "Kroya", noDrought: 1.89, mildDrought: 676.28, moderateDrought: 2402.89, severeDrought: 4639.13, extremeDrought: 1852.33 },
+                { kecamatan: "Lelea", noDrought: 0.02, mildDrought: 4110.94, moderateDrought: 280.37, severeDrought: 82.4, extremeDrought: 17.54 },
+                { kecamatan: "Lohbener", noDrought: 0.26, mildDrought: 2045.59, moderateDrought: 183.44, severeDrought: 39.18, extremeDrought: 10.74 },
+                { kecamatan: "Losarang", noDrought: 8.77, mildDrought: 2150.69, moderateDrought: 1308.98, severeDrought: 864.36, extremeDrought: 318.67 },
+                { kecamatan: "Pasekan", noDrought: 0.01, mildDrought: 326.41, moderateDrought: 176.93, severeDrought: 19.58, extremeDrought: 5.74 },
+                { kecamatan: "Patrol", noDrought: 0.35, mildDrought: 1032.71, moderateDrought: 1162.42, severeDrought: 562.97, extremeDrought: 103.55 },
+                { kecamatan: "Sindang", noDrought: 1.23, mildDrought: 1171.24, moderateDrought: 477.59, severeDrought: 101.78, extremeDrought: 43.7 },
+                { kecamatan: "Sliyeg", noDrought: 0.05, mildDrought: 3298.76, moderateDrought: 441.95, severeDrought: 33.54, extremeDrought: 7.85 },
+                { kecamatan: "Sukagumiwang", noDrought: 0.07, mildDrought: 1506.88, moderateDrought: 310.3, severeDrought: 23.53, extremeDrought: 5.78 },
+                { kecamatan: "Sukra", noDrought: 0.34, mildDrought: 366.54, moderateDrought: 671.52, severeDrought: 1148.64, extremeDrought: 754.19 },
+                { kecamatan: "Terisi", noDrought: 0.51, mildDrought: 1996.37, moderateDrought: 2079.39, severeDrought: 2263.81, extremeDrought: 562.68 },
+                { kecamatan: "Tukdana", noDrought: 0.21, mildDrought: 2847.3, moderateDrought: 128.79, severeDrought: 15, extremeDrought: 4.17 },
+                { kecamatan: "Widasari", noDrought: 0.11, mildDrought: 2653.58, moderateDrought: 117.76, severeDrought: 26.95, extremeDrought: 8.03 }
+            ],
+            agustus: [
+    { kecamatan: "Anjatan", noDrought: 1.16, mildDrought: 5328.5, moderateDrought: 404.98, severeDrought: 214.97, extremeDrought: 166.45 },
+    { kecamatan: "Arahan", noDrought: 0.12, mildDrought: 1640.22, moderateDrought: 187.27, severeDrought: 40.88, extremeDrought: 14.91 },
+    { kecamatan: "Balongan", noDrought: 0.19, mildDrought: 1522.75, moderateDrought: 235.78, severeDrought: 60.69, extremeDrought: 18.92 },
+    { kecamatan: "Bangodua", noDrought: 0.34, mildDrought: 3009.14, moderateDrought: 152.01, severeDrought: 91.67, extremeDrought: 35.91 },
+    { kecamatan: "Bongas", noDrought: 0.92, mildDrought: 3209.57, moderateDrought: 378.33, severeDrought: 143.54, extremeDrought: 37.94 },
+    { kecamatan: "Cantigi", noDrought: 5.91, mildDrought: 339.46, moderateDrought: 192.57, severeDrought: 254.63, extremeDrought: 267.27 },
+    { kecamatan: "Cikedung", noDrought: 1.76, mildDrought: 706.77, moderateDrought: 600.69, severeDrought: 1336.13, extremeDrought: 877.65 },
+    { kecamatan: "Gabuswetan", noDrought: 28.45, mildDrought: 897.21, moderateDrought: 1059.23, severeDrought: 2646.53, extremeDrought: 1532.3 },
+    { kecamatan: "Gantar", noDrought: 4.23, mildDrought: 148.51, moderateDrought: 522.23, severeDrought: 1889.29, extremeDrought: 4813.15 },
+    { kecamatan: "Haurgeulis", noDrought: 0.25, mildDrought: 930.3, moderateDrought: 729.84, severeDrought: 942.24, extremeDrought: 1608.49 },
+    { kecamatan: "Indramayu", noDrought: 0.02, mildDrought: 1052.43, moderateDrought: 178.21, severeDrought: 157.94, extremeDrought: 61.02 },
+    { kecamatan: "Jatibarang", noDrought: 0.12, mildDrought: 2220.85, moderateDrought: 65.89, severeDrought: 9.74, extremeDrought: 6.3 },
+    { kecamatan: "Juntinyuat", noDrought: 7.4, mildDrought: 1310.7, moderateDrought: 914.61, severeDrought: 812.35, extremeDrought: 347.92 },
+    { kecamatan: "Kandanghaur", noDrought: 0.05, mildDrought: 924.39, moderateDrought: 1150.9, severeDrought: 2119.24, extremeDrought: 1089.9 },
+    { kecamatan: "Karangampel", noDrought: 0.23, mildDrought: 1187.32, moderateDrought: 468.65, severeDrought: 188.31, extremeDrought: 48.01 },
+    { kecamatan: "Kedokan Bunder", noDrought: 0.01, mildDrought: 1882.71, moderateDrought: 172.37, severeDrought: 61.75, extremeDrought: 16.05 },
+    { kecamatan: "Kertasemaya", noDrought: 0.11, mildDrought: 2374.75, moderateDrought: 38.61, severeDrought: 4.59, extremeDrought: 1.76 },
+    { kecamatan: "Krangkeng", noDrought: 30.86, mildDrought: 2196.15, moderateDrought: 1439.65, severeDrought: 367.45, extremeDrought: 99.34 },
+    { kecamatan: "Kroya", noDrought: 0.4, mildDrought: 20.54, moderateDrought: 445.09, severeDrought: 2431.49, extremeDrought: 6642.27 },
+    { kecamatan: "Lelea", noDrought: 0.08, mildDrought: 1845.35, moderateDrought: 1101.97, severeDrought: 1080.98, extremeDrought: 461.8 },
+    { kecamatan: "Lohbener", noDrought: 2.43, mildDrought: 2016.85, moderateDrought: 206.8, severeDrought: 40.93, extremeDrought: 14.23 },
+    { kecamatan: "Losarang", noDrought: 0.15, mildDrought: 1700.36, moderateDrought: 1038.65, severeDrought: 1184.31, extremeDrought: 724.68 },
+    { kecamatan: "Pasekan", noDrought: 0.74, mildDrought: 8, moderateDrought: 83.43, severeDrought: 217.67, extremeDrought: 219.27 },
+    { kecamatan: "Patrol", noDrought: 1.8, mildDrought: 1100.05, moderateDrought: 884.99, severeDrought: 580.32, extremeDrought: 295.62 },
+    { kecamatan: "Sindang", noDrought: 0.09, mildDrought: 71.43, moderateDrought: 256.71, severeDrought: 632.99, extremeDrought: 832.2 },
+    { kecamatan: "Sliyeg", noDrought: 0.09, mildDrought: 3630.01, moderateDrought: 131.31, severeDrought: 13.75, extremeDrought: 6.63 },
+    { kecamatan: "Sukagumiwang", noDrought: 1.37, mildDrought: 1416.87, moderateDrought: 258.75, severeDrought: 120.99, extremeDrought: 49.18 },
+    { kecamatan: "Sukra", noDrought: 14.7, mildDrought: 639.09, moderateDrought: 430.5, severeDrought: 770.86, extremeDrought: 1098.89 },
+    { kecamatan: "Terisi", noDrought: 0.25, mildDrought: 186.94, moderateDrought: 599.87, severeDrought: 2705.48, extremeDrought: 3392.93 },
+    { kecamatan: "Tukdana", noDrought: 0.13, mildDrought: 2462.07, moderateDrought: 320.96, severeDrought: 157.13, extremeDrought: 54.64 },
+    { kecamatan: "Widasari", noDrought: 0.26, mildDrought: 1641.07, moderateDrought: 603.2, severeDrought: 406.18, extremeDrought: 155.51 }
+],
+            september: [
+    {  kecamatan: "Anjatan", noDrought: 0.144153, mildDrought: 5557.66, moderateDrought: 317.768, severeDrought: 138.317, extremeDrought: 102.024 },
+    {  kecamatan: "Arahan", noDrought: 0.72839, mildDrought: 450.262, moderateDrought: 414.624, severeDrought: 353.684, extremeDrought: 663.996 },
+    {  kecamatan: "Balongan", noDrought: 0.283142, mildDrought: 645.2, moderateDrought: 626.253, severeDrought: 360.65, extremeDrought: 205.644 },
+    {  kecamatan: "Bangodua", noDrought: 0.399075, mildDrought: 1300.92, moderateDrought: 586.145, severeDrought: 554.116, extremeDrought: 847.078 },
+    {  kecamatan: "Bongas", noDrought: 0.039567, mildDrought: 2896.69, moderateDrought: 486.197, severeDrought: 310.448, extremeDrought: 76.2375 },
+    {  kecamatan: "Cantigi", noDrought: 2.23727, mildDrought: 36.6672, moderateDrought: 181.023, severeDrought: 217.736, extremeDrought: 617.121 },
+    {  kecamatan: "Cikedung", noDrought: 13.6396, mildDrought: 61.0207, moderateDrought: 389.589, severeDrought: 900.417, extremeDrought: 2162.43 },
+    {  kecamatan: "Gabuswetan", noDrought: 10.3499, mildDrought: 428.799, moderateDrought: 973.626, severeDrought: 2583.95, extremeDrought: 2140.24 },
+    {  kecamatan: "Gantar", noDrought: 37.4848, mildDrought: 315.525, moderateDrought: 842.652, severeDrought: 1565.06, extremeDrought: 4640.76 },
+    {  kecamatan: "Haurgeulis", noDrought: 16.3112, mildDrought: 627.175, moderateDrought: 561.934, severeDrought: 786.419, extremeDrought: 2223.15 },
+    {  kecamatan: "Indramayu", noDrought: 0.619126, mildDrought: 680.956, moderateDrought: 480.181, severeDrought: 196.357, extremeDrought: 91.7253 },
+    {  kecamatan: "Jatibarang", noDrought: 0.049183, mildDrought: 1712.58, moderateDrought: 337.213, severeDrought: 149.832, extremeDrought: 102.693 },
+    {  kecamatan: "Juntinyuat", noDrought: 0.209565, mildDrought: 632.165, moderateDrought: 1429.55, severeDrought: 891.453, extremeDrought: 432.147 },
+    {  kecamatan: "Kandanghaur", noDrought: 8.3262, mildDrought: 1335.51, moderateDrought: 645.011, severeDrought: 1789.13, extremeDrought: 1513.81 },
+    {  kecamatan: "Karangampel", noDrought: 0.048636, mildDrought: 901.44, moderateDrought: 520.063, severeDrought: 316.211, extremeDrought: 154.563 },
+    {  kecamatan: "Kedokan Bunder", noDrought: 0.135163, mildDrought: 1314.24, moderateDrought: 428.276, severeDrought: 260.494, extremeDrought: 129.839 },
+    {  kecamatan: "Kertasemaya", noDrought: 0.12349, mildDrought: 2054.98, moderateDrought: 261.466, severeDrought: 80.1449, extremeDrought: 22.9255 },
+    {  kecamatan: "Krangkeng", noDrought: 63.9926, mildDrought: 2505.19, moderateDrought: 1093.46, severeDrought: 409.433, extremeDrought: 94.518 },
+    {  kecamatan: "Kroya", noDrought: 0.95789, mildDrought: 60.4414, moderateDrought: 626.982, severeDrought: 2027.1, extremeDrought: 6791.71 },
+    {  kecamatan: "Lelea", noDrought: 0.473725, mildDrought: 344.269, moderateDrought: 675.82, severeDrought: 1235.79, extremeDrought: 2233.44 },
+    {  kecamatan: "Lohbener", noDrought: 2.97105, mildDrought: 497.971, moderateDrought: 607.702, severeDrought: 593.422, extremeDrought: 578.887 },
+    {  kecamatan: "Losarang", noDrought: 0.995293, mildDrought: 274.221, moderateDrought: 954.098, severeDrought: 1553.61, extremeDrought: 1865.2 },
+    {  kecamatan: "Pasekan", noDrought: 0.701623, mildDrought: 25.6395, moderateDrought: 231.573, severeDrought: 110.94, extremeDrought: 159.324 },
+    {  kecamatan: "Patrol", noDrought: 7.03487, mildDrought: 1416.72, moderateDrought: 538.92, severeDrought: 511.536, extremeDrought: 393.819 },
+    {  kecamatan: "Sindang", noDrought: 0.171603, mildDrought: 155.566, moderateDrought: 640.409, severeDrought: 408.168, extremeDrought: 583.905 },
+    {  kecamatan: "Sliyeg", noDrought: 0.396361, mildDrought: 1821.42, moderateDrought: 1126.91, severeDrought: 542.929, extremeDrought: 290.028 },
+    {  kecamatan: "Sukagumiwang", noDrought: 1.2978, mildDrought: 671.689, moderateDrought: 472.53, severeDrought: 387.074, extremeDrought: 314.057 },
+    {  kecamatan: "Sukra", noDrought: 28.6481, mildDrought: 1003.49, moderateDrought: 423.802, severeDrought: 594.086, extremeDrought: 918.027 },
+    {  kecamatan: "Terisi", noDrought: 0.91944, mildDrought: 79.013, moderateDrought: 591.145, severeDrought: 1911.94, extremeDrought: 4289.09 },
+    {  kecamatan: "Tukdana", noDrought: 0.438242, mildDrought: 1034.82, moderateDrought: 464.408, severeDrought: 519.283, extremeDrought: 975.405 },
+    {  kecamatan: "Widasari", noDrought: 0.56654, mildDrought: 332.591, moderateDrought: 487.08, severeDrought: 671.205, extremeDrought: 1314.68 }
+],
+            oktober: [
+    { kecamatan: "Anjatan", noDrought: 0, mildDrought: 4510, moderateDrought: 738, severeDrought: 549, extremeDrought: 318 },
+    { kecamatan: "Arahan", noDrought: 2, mildDrought: 222, moderateDrought: 801, severeDrought: 451, extremeDrought: 407 },
+    { kecamatan: "Balongan", noDrought: 0, mildDrought: 288, moderateDrought: 912, severeDrought: 541, extremeDrought: 97 },
+    { kecamatan: "Bangodua", noDrought: 1, mildDrought: 750, moderateDrought: 661, severeDrought: 832, extremeDrought: 1045 },
+    { kecamatan: "Bongas", noDrought: 0, mildDrought: 2220, moderateDrought: 772, severeDrought: 665, extremeDrought: 112 },
+    { kecamatan: "Cantigi", noDrought: 9, mildDrought: 85, moderateDrought: 257, severeDrought: 213, extremeDrought: 491 },
+    { kecamatan: "Cikedung", noDrought: 7, mildDrought: 93, moderateDrought: 492, severeDrought: 1402, extremeDrought: 1534 },
+    { kecamatan: "Gabuswetan", noDrought: 6, mildDrought: 676, moderateDrought: 1130, severeDrought: 2623, extremeDrought: 1703 },
+    { kecamatan: "Gantar", noDrought: 30, mildDrought: 366, moderateDrought: 971, severeDrought: 1986, extremeDrought: 4050 },
+    { kecamatan: "Haurgeulis", noDrought: 8, mildDrought: 325, moderateDrought: 369, severeDrought: 858, extremeDrought: 2656 },
+    { kecamatan: "Indramayu", noDrought: 2, mildDrought: 299, moderateDrought: 611, severeDrought: 408, extremeDrought: 131 },
+    { kecamatan: "Jatibarang", noDrought: 0, mildDrought: 637, moderateDrought: 760, severeDrought: 673, extremeDrought: 233 },
+    { kecamatan: "Juntinyuat", noDrought: 0, mildDrought: 757, moderateDrought: 1873, severeDrought: 673, extremeDrought: 82 },
+    { kecamatan: "Kandanghaur", noDrought: 37, mildDrought: 1431, moderateDrought: 610, severeDrought: 1595, extremeDrought: 1620 },
+    { kecamatan: "Karangampel", noDrought: 0, mildDrought: 545, moderateDrought: 946, severeDrought: 364, extremeDrought: 36 },
+    { kecamatan: "Kedokan Bunder", noDrought: 0, mildDrought: 657, moderateDrought: 856, severeDrought: 505, extremeDrought: 114 },
+    { kecamatan: "Kertasemaya", noDrought: 0, mildDrought: 1272, moderateDrought: 590, severeDrought: 416, extremeDrought: 142 },
+    { kecamatan: "Krangkeng", noDrought: 0, mildDrought: 1538, moderateDrought: 1657, severeDrought: 777, extremeDrought: 131 },
+    { kecamatan: "Kroya", noDrought: 50, mildDrought: 95, moderateDrought: 826, severeDrought: 2052, extremeDrought: 6548 },
+    { kecamatan: "Lelea", noDrought: 1, mildDrought: 218, moderateDrought: 1271, severeDrought: 1822, extremeDrought: 1179 },
+    { kecamatan: "Lohbener", noDrought: 0, mildDrought: 312, moderateDrought: 1131, severeDrought: 602, extremeDrought: 233 },
+    { kecamatan: "Losarang", noDrought: 11, mildDrought: 133, moderateDrought: 527, severeDrought: 1779, extremeDrought: 2200 },
+    { kecamatan: "Pasekan", noDrought: 3, mildDrought: 93, moderateDrought: 257, severeDrought: 74, extremeDrought: 102 },
+    { kecamatan: "Patrol", noDrought: 1, mildDrought: 1537, moderateDrought: 446, severeDrought: 470, extremeDrought: 408 },
+    { kecamatan: "Sindang", noDrought: 8, mildDrought: 617, moderateDrought: 627, severeDrought: 309, extremeDrought: 234 },
+    { kecamatan: "Sliyeg", noDrought: 0, mildDrought: 1094, moderateDrought: 1506, severeDrought: 957, extremeDrought: 225 },
+    { kecamatan: "Sukagumiwang", noDrought: 0, mildDrought: 325, moderateDrought: 661, severeDrought: 517, extremeDrought: 343 },
+    { kecamatan: "Sukra", noDrought: 2, mildDrought: 1145, moderateDrought: 452, severeDrought: 505, extremeDrought: 838 },
+    { kecamatan: "Terisi", noDrought: 40, mildDrought: 85, moderateDrought: 609, severeDrought: 2154, extremeDrought: 4012 },
+    { kecamatan: "Tukdana", noDrought: 1, mildDrought: 573, moderateDrought: 629, severeDrought: 740, extremeDrought: 1052 },
+    { kecamatan: "Widasari", noDrought: 0, mildDrought: 319, moderateDrought: 1138, severeDrought: 962, extremeDrought: 386 }
+]
+        };
+
+        // Fungsi untuk mengupdate grafik
+        let droughtChart;
+        const ctx = document.getElementById('droughtChart').getContext('2d');
+
+        function updateChart(month) {
+            const data = dataByMonth[month];
+            const labels = data.map(item => item.kecamatan);
+            const datasets = [
+                { label: 'No Drought', data: data.map(item => item.noDrought), backgroundColor: 'darkgreen' },
+                { label: 'Mild Drought', data: data.map(item => item.mildDrought), backgroundColor: 'lightgreen' },
+                { label: 'Moderate Drought', data: data.map(item => item.moderateDrought), backgroundColor: 'yellow' },
+                { label: 'Severe Drought', data: data.map(item => item.severeDrought), backgroundColor: 'orange' },
+                { label: 'Extreme Drought', data: data.map(item => item.extremeDrought), backgroundColor: 'red' }
+            ];
+
+            if (droughtChart) {
+                droughtChart.destroy();
+            }
+
+            droughtChart = new Chart(ctx, {
+                type: 'bar',
+                data: { labels, datasets },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: { stacked: true },
+                        y: { stacked: true, beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        // Fungsi untuk mengisi tabel
+        function isiTabel(bulan) {
+            const tbody = document.querySelector("#dataTable tbody");
+            tbody.innerHTML = ""; // Kosongkan tabel sebelum mengisi data baru
+
+            dataByMonth[bulan].forEach(data => {
+                const row = `
+                    <tr>
+                        <td class="px-4 py-2 border border-gray-300">${data.kecamatan}</td>
+                        <td class="px-4 py-2 border border-gray-300">${data.noDrought}</td>
+                        <td class="px-4 py-2 border border-gray-300">${data.mildDrought}</td>
+                        <td class="px-4 py-2 border border-gray-300">${data.moderateDrought}</td>
+                        <td class="px-4 py-2 border border-gray-300">${data.severeDrought}</td>
+                        <td class="px-4 py-2 border border-gray-300">${data.extremeDrought}</td>
+                    </tr>
+                `;
+                tbody.insertAdjacentHTML("beforeend", row);
+            });
+        }
+
+        // Fungsi pembaruan terpusat
+        function updateDashboard(month) {
+            updateChart(month); // Perbarui grafik
+            isiTabel(month);   // Perbarui tabel
+            document.getElementById("bulan").value = month; // Sinkronkan dropdown tabel
+        }
+
+        // Event listener untuk dropdown grafik
+        document.getElementById('monthSelect').addEventListener('change', function() {
+            const selectedMonth = this.value;
+            updateDashboard(selectedMonth);
+        });
+
+        // Event listener untuk dropdown tabel
+        document.getElementById("bulan").addEventListener("change", function() {
+            const selectedMonth = this.value;
+            updateDashboard(selectedMonth);
+        });
+
+        // Inisialisasi dashboard dengan data bulan Juli
+        updateDashboard("juli");
+    </script>
+</body>
+</html>
